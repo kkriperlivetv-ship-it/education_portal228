@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Настройка 2FA{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">🔐 Двухфакторная аутентификация</h4>
+                </div>
+                <div class="card-body text-center">
+                    
+                    {% if not current_user.twofa_enabled %}
+                        <div class="alert alert-info">
+                            <strong>📱 Настройка 2FA</strong><br>
+                            Установите приложение Google Authenticator или любой другой аутентификатор
+                        </div>
+                        
+                        <!-- QR код -->
+                        <div class="mb-4">
+                            <img src="data:image/png;base64,{{ qr_code }}" 
+                                 alt="QR Code" 
+                                 class="img-fluid border p-2 rounded"
+                                 style="max-width: 250px;">
+                        </div>
+                        
+                        <!-- Секретный ключ (на случай если не работает QR) -->
+                        <div class="alert alert-secondary">
+                            <small>Или введите код вручную:</small>
+                            <code class="d-block mt-2">{{ secret }}</code>
+                        </div>
+                        
+                        <!-- Форма подтверждения -->
+                        <form method="POST" action="{{ url_for('verify_2fa') }}">
+                            <div class="mb-3">
+                                <label for="code" class="form-label">Код из приложения:</label>
+                                <input type="text" 
+                                       class="form-control text-center" 
+                                       id="code" 
+                                       name="code" 
+                                       placeholder="000000"
+                                       maxlength="6"
+                                       required
+                                       style="font-size: 24px; letter-spacing: 5px;">
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                ✅ Подтвердить и включить 2FA
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-success">
+                            <i class="bi bi-shield-check"></i>
+                            <strong>2FA ВКЛЮЧЕНА!</strong><br>
+                            Ваш аккаунт защищен двухфакторной аутентификацией
+                        </div>
+                        
+                        <form method="POST" action="{{ url_for('disable_2fa') }}">
+                            <button type="submit" class="btn btn-danger w-100">
+                                🔓 Отключить 2FA
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-muted small">
+                        <i class="bi bi-info-circle"></i>
+                        Google Authenticator доступен в:
+                        <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank">
+                            Google Play
+                        </a>
+                        и
+                        <a href="https://apps.apple.com/app/google-authenticator/id388497605" target="_blank">
+                            App Store
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
